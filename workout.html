@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Glow Up">
+<title>Glow Up Workout Plan</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+  
+  body {
+    font-family: -apple-system, 'Segoe UI', system-ui, sans-serif;
+    background: linear-gradient(180deg, #FFF0F5 0%, #FDE8F0 30%, #FBD0E0 100%);
+    min-height: 100vh;
+    min-height: 100dvh;
+    color: #4A1942;
+    -webkit-font-smoothing: antialiased;
+    padding-bottom: env(safe-area-inset-bottom, 20px);
+  }
+
+  .header { text-align: center; padding: 28px 20px 14px; }
+  .header .heart { font-size: 28px; margin-bottom: 2px; }
+  .header h1 { font-size: 28px; font-weight: 900; color: #E91E8C; letter-spacing: 3px; margin: 0; }
+  .header .sub { font-size: 11px; letter-spacing: 3px; color: #F06CAB; font-weight: 700; text-transform: uppercase; margin-top: 2px; }
+
+  .tabs { display: -webkit-flex; display: flex; gap: 8px; padding: 4px 16px 14px; }
+  .tab {
+    -webkit-flex: 1; flex: 1; padding: 10px 6px 8px; border-radius: 16px; border: 2px solid rgba(248,164,200,0.4);
+    background: rgba(255,255,255,0.6); text-align: center; cursor: pointer;
+    -webkit-transition: all 0.25s ease; transition: all 0.25s ease; position: relative;
+  }
+  .tab.active { background: linear-gradient(135deg, #E91E8C, #F06CAB); border-color: transparent; }
+  .tab .emoji { font-size: 20px; display: block; }
+  .tab .label { display: block; font-size: 11px; font-weight: 800; color: #E91E8C; letter-spacing: 1px; margin-top: 3px; }
+  .tab.active .label { color: white; }
+  .tab .count { display: block; font-size: 9px; color: #B88BA8; margin-top: 2px; }
+  .tab.active .count { color: rgba(255,255,255,0.8); }
+
+  .progress-wrap { padding: 0 20px 8px; }
+  .progress-bar { height: 6px; background: rgba(255,255,255,0.5); border-radius: 3px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, #E91E8C, #F06CAB, #F8A4C8); border-radius: 3px; -webkit-transition: width 0.4s ease; transition: width 0.4s ease; width: 0%; }
+  .progress-labels { display: -webkit-flex; display: flex; -webkit-justify-content: space-between; justify-content: space-between; margin-top: 4px; font-size: 10px; color: #B88BA8; font-weight: 700; }
+
+  .sugar-toggle {
+    margin: 4px 16px; padding: 12px 16px; background: linear-gradient(135deg, #FFF0F5, #FFEEF5);
+    border: 2px solid #F8A4C8; border-radius: 16px; cursor: pointer; display: -webkit-flex; display: flex;
+    -webkit-justify-content: space-between; justify-content: space-between;
+    -webkit-align-items: center; align-items: center; font-family: inherit;
+    font-size: 13px; font-weight: 700; color: #E91E8C; width: calc(100% - 32px);
+  }
+  .sugar-arrow { font-size: 18px; color: #F8A4C8; -webkit-transition: transform 0.2s; transition: transform 0.2s; }
+  .sugar-arrow.open { -webkit-transform: rotate(180deg); transform: rotate(180deg); }
+  .sugar-content { padding: 6px 20px 0; }
+  .sugar-item { display: -webkit-flex; display: flex; gap: 10px; padding: 8px 12px; font-size: 13px; -webkit-align-items: center; align-items: center; font-weight: 500; }
+  .sugar-warn { padding: 8px 12px; font-size: 12px; color: #E91E8C; font-weight: 700; font-style: italic; }
+  .is-hidden { display: none; }
+
+  .day-content { padding: 4px 16px; }
+  .day-header { text-align: center; padding: 14px 0 6px; }
+  .day-header h2 { font-size: 19px; font-weight: 900; color: #4A1942; margin: 0 0 4px; }
+  .day-header p { font-size: 12px; color: #B88BA8; font-style: italic; line-height: 1.45; padding: 0 8px; }
+
+  .section-label {
+    display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; gap: 8px; padding: 18px 4px 8px;
+  }
+  .section-label .emoji { font-size: 16px; }
+  .section-label .text { font-size: 12px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: #E91E8C; }
+  .section-label .line { -webkit-flex: 1; flex: 1; height: 1px; background: linear-gradient(90deg, #F8A4C8, transparent); }
+
+  .check-item {
+    display: -webkit-flex; display: flex; -webkit-align-items: flex-start; align-items: flex-start; gap: 12px; width: 100%; padding: 10px 16px;
+    background: rgba(255,255,255,0.6); border: none; border-radius: 14px; cursor: pointer;
+    text-align: left; -webkit-transition: all 0.2s ease; transition: all 0.2s ease; margin-bottom: 6px; font-family: inherit;
+    -webkit-appearance: none; appearance: none;
+  }
+  .check-item.large { padding: 14px 16px; }
+  .check-item.done { opacity: 0.55; background: rgba(233,30,140,0.08); }
+  .check-item:active { -webkit-transform: scale(0.98); transform: scale(0.98); }
+  .checkbox {
+    -webkit-flex-shrink: 0; flex-shrink: 0; width: 22px; height: 22px; border-radius: 7px; border: 2px solid #F8A4C8;
+    display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center;
+    -webkit-justify-content: center; justify-content: center; margin-top: 2px;
+    -webkit-transition: all 0.2s ease; transition: all 0.2s ease; font-size: 13px; color: white; background: transparent;
+  }
+  .check-item.large .checkbox { width: 26px; height: 26px; }
+  .check-item.done .checkbox { border-color: #E91E8C; background: #E91E8C; }
+  .check-text { font-size: 14px; font-weight: 600; color: #4A1942; line-height: 1.35; }
+  .check-item.done .check-text { color: #C88BA8; text-decoration: line-through; }
+  .check-detail { display: block; font-size: 12px; color: #B88BA8; margin-top: 2px; font-style: italic; }
+
+  .ex-card {
+    display: -webkit-flex; display: flex; width: 100%; padding: 14px 16px; background: rgba(255,255,255,0.7);
+    border: none; border-radius: 16px; cursor: pointer; text-align: left; margin-bottom: 8px;
+    -webkit-transition: all 0.25s ease; transition: all 0.25s ease; gap: 12px;
+    -webkit-align-items: flex-start; align-items: flex-start; font-family: inherit;
+    -webkit-appearance: none; appearance: none;
+  }
+  .ex-card.done { opacity: 0.5; background: linear-gradient(135deg, rgba(233,30,140,0.1), rgba(240,108,171,0.08)); }
+  .ex-card:active { -webkit-transform: scale(0.98); transform: scale(0.98); }
+  .ex-checkbox {
+    -webkit-flex-shrink: 0; flex-shrink: 0; width: 28px; height: 28px; border-radius: 8px; border: 2px solid #F8A4C8;
+    display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center;
+    -webkit-justify-content: center; justify-content: center; margin-top: 1px;
+    -webkit-transition: all 0.2s ease; transition: all 0.2s ease; font-size: 15px; color: white; font-weight: 700; background: transparent;
+  }
+  .ex-card.done .ex-checkbox { border-color: #E91E8C; background: linear-gradient(135deg, #E91E8C, #F06CAB); }
+  .ex-info { -webkit-flex: 1; flex: 1; }
+  .ex-top { display: -webkit-flex; display: flex; -webkit-justify-content: space-between; justify-content: space-between; -webkit-align-items: baseline; align-items: baseline; gap: 8px; }
+  .ex-name { font-size: 15px; font-weight: 700; color: #4A1942; }
+  .ex-card.done .ex-name { color: #C88BA8; text-decoration: line-through; }
+  .ex-sets { font-size: 13px; font-weight: 700; color: #E91E8C; font-family: 'SF Mono', Menlo, monospace; white-space: nowrap; letter-spacing: 0.5px; }
+  .ex-note { display: block; font-size: 12px; color: #B88BA8; margin-top: 4px; font-style: italic; line-height: 1.3; }
+
+  .tip-box {
+    margin: 16px 0; padding: 14px 16px;
+    background: linear-gradient(135deg, rgba(233,30,140,0.08), rgba(248,164,200,0.12));
+    border-left: 4px solid #E91E8C; border-radius: 0 14px 14px 0;
+    font-size: 13px; line-height: 1.5; font-style: italic;
+  }
+
+  .adhd-toggle {
+    margin: 8px 16px; padding: 14px 16px; background: rgba(255,255,255,0.5);
+    border: 2px dashed #F8A4C8; border-radius: 16px; cursor: pointer;
+    font-size: 13px; font-weight: 700; color: #E91E8C; width: calc(100% - 32px);
+    font-family: inherit; text-align: center; -webkit-appearance: none; appearance: none;
+  }
+  .adhd-content { padding: 12px 16px 0; }
+  .adhd-item { display: -webkit-flex; display: flex; gap: 10px; padding: 8px 12px; font-size: 13px; -webkit-align-items: flex-start; align-items: flex-start; line-height: 1.4; font-weight: 500; }
+
+  .footer { text-align: center; padding: 12px 20px 40px; }
+  .footer .divider { width: 40px; height: 1px; background: #F8A4C8; margin: 0 auto 16px; }
+  .footer p { font-size: 14px; font-style: italic; color: #E91E8C; font-weight: 600; line-height: 1.6; }
+
+  .celebrate {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0; display: -webkit-flex; display: flex;
+    -webkit-align-items: center; align-items: center; -webkit-justify-content: center; justify-content: center;
+    background: rgba(233,30,140,0.15); z-index: 999; pointer-events: none; opacity: 0;
+    -webkit-transition: opacity 0.3s ease; transition: opacity 0.3s ease;
+  }
+  .celebrate.show { opacity: 1; -webkit-animation: fadeOut 3s ease forwards; animation: fadeOut 3s ease forwards; }
+  .celebrate .crown { font-size: 64px; margin-bottom: 12px; }
+  .celebrate .title { font-size: 22px; font-weight: 900; color: #E91E8C; text-shadow: 0 2px 20px rgba(233,30,140,0.3); }
+  .celebrate .sub-text { font-size: 15px; color: #4A1942; margin-top: 4px; }
+
+  @-webkit-keyframes fadeOut { 0%,70% { opacity:1; } 100% { opacity:0; } }
+  @keyframes fadeOut { 0%,70% { opacity:1; } 100% { opacity:0; } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="heart">&#9825;</div>
+  <h1>GLOW UP</h1>
+  <div class="sub">Planet Fitness &middot; PCOS Edition</div>
+</div>
+
+<div class="tabs" id="tabs"></div>
+
+<div class="progress-wrap">
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="progress-labels"><span id="progressCount">0/0 done</span><span id="progressPct">0%</span></div>
+</div>
+
+<button class="sugar-toggle" id="sugarToggle" type="button">
+  <span>&#x1FA78; Blood Sugar Check</span>
+  <span class="sugar-arrow" id="sugarArrow">&#8964;</span>
+</button>
+<div class="sugar-content is-hidden" id="sugarContent">
+  <div class="sugar-item">&#x1FA78; Check blood sugar before workout</div>
+  <div class="sugar-item">&#127820; Under 100? Eat your snack first</div>
+  <div class="sugar-item">&#x1F6B6;&#x200D;&#x2640;&#xFE0F; Over 250? Skip gym, walk outside instead</div>
+  <div class="sugar-item">&#9989; Glucose tabs in your bag?</div>
+  <div class="sugar-warn">&#9888;&#65039; Shaky, dizzy, or sweaty-cold? STOP &middot; sit down &middot; glucose tabs NOW</div>
+</div>
+
+<div class="day-content" id="dayContent"></div>
+
+<button class="adhd-toggle" id="adhdToggle" type="button">&#9825; ADHD Gym Survival Guide &#9825;</button>
+<div class="adhd-content is-hidden" id="adhdContent">
+  <div class="adhd-item">&#128663; Keep gym clothes in a bag by the door</div>
+  <div class="adhd-item">&#128241; Screenshot today's workout</div>
+  <div class="adhd-item">&#128263; Phone on Do Not Disturb (except music)</div>
+  <div class="adhd-item">&#9201; Rest 60&ndash;90 sec between sets. Scroll TikTok, no shame</div>
+  <div class="adhd-item">&#129335;&#127998;&#8205;&#9792;&#65039; Lost track of sets? Guess and move on. Doesn't matter</div>
+  <div class="adhd-item">&#10024; Done &gt; perfect. 2 sets instead of 3 is a WIN</div>
+  <div class="adhd-item">&#129504; Urge to restart? Finish this exercise, then decide</div>
+</div>
+
+<div class="footer">
+  <div class="divider"></div>
+  <p>You don't have to be perfect.<br>You just have to show up. &#128081;</p>
+</div>
+
+<div class="celebrate" id="celebrate">
+  <div style="text-align:center">
+    <div class="crown">&#128081;</div>
+    <div class="title">DAY COMPLETE!</div>
+    <div class="sub-text">You're literally glowing rn &#10024;</div>
+  </div>
+</div>
+
+<script>
+(function() {
+  "use strict";
+
+  var DAYS = [
+    {
+      label: "DAY 1", icon: "\uD83E\uDDB5\uD83C\uDFFE", title: "Lower Body + Walking",
+      why: "Lower body builds the biggest muscles in your body \u2014 your #1 weapon against insulin resistance. Legs and glutes are glucose-eating machines.",
+      sections: [
+        { label: "Warm-Up \u00b7 5 min", emoji: "\uD83D\uDD25", type: "check", items: [
+          { text: "Treadmill walk \u00b7 2.5\u20133.0 mph, flat", detail: "5 min" },
+          { text: "Bodyweight squats", detail: "10 reps \u00b7 wall for balance" },
+          { text: "Hip circles each direction", detail: "10 each way" }
+        ]},
+        { label: "Workout", emoji: "\uD83D\uDC96", type: "exercise", items: [
+          { name: "Leg Press Machine", sets: "3 \u00d7 12", note: "Start light! Feet shoulder-width" },
+          { name: "Seated Leg Curl", sets: "3 \u00d7 12", note: "Slow down, squeeze at the bottom" },
+          { name: "Leg Extension", sets: "3 \u00d7 12", note: "Don\u2019t lock knees at the top" },
+          { name: "Hip Abductor", sets: "3 \u00d7 15", note: "The \u201copen\u201d one \u2014 great for hips" },
+          { name: "Hip Adductor", sets: "3 \u00d7 15", note: "The \u201cclose\u201d one \u2014 inner thighs" },
+          { name: "Standing Calf Raises", sets: "3 \u00d7 15", note: "Hold dumbbell or use Smith machine" }
+        ]},
+        { label: "Cooldown Walk", emoji: "\uD83D\uDEB6\u200D\u2640\uFE0F", type: "check", large: true, items: [
+          { text: "Treadmill walk \u00b7 2.5 mph flat", detail: "10 min \u2014 your PCOS bonus round" }
+        ]}
+      ],
+      tip: "Post-workout walking is a cheat code for blood sugar. Even 10 min of easy walking after lifting drops glucose levels. Don\u2019t skip this!"
+    },
+    {
+      label: "DAY 2", icon: "\uD83D\uDCAA\uD83C\uDFFE", title: "Upper Body + Core",
+      why: "Upper body helps posture & daily life. Core work supports your pelvic floor and digestion \u2014 both common PCOS struggle zones.",
+      sections: [
+        { label: "Warm-Up \u00b7 5 min", emoji: "\uD83D\uDD25", type: "check", items: [
+          { text: "Recumbent bike \u00b7 easy pace", detail: "5 min \u00b7 level 1\u20133" },
+          { text: "Arm circles", detail: "10 forward, 10 back \u00b7 big ones" },
+          { text: "Wall push-ups", detail: "10 reps \u00b7 wake up chest & arms" }
+        ]},
+        { label: "Workout", emoji: "\uD83D\uDC96", type: "exercise", items: [
+          { name: "Chest Press Machine", sets: "3 \u00d7 12", note: "Handles at chest height" },
+          { name: "Lat Pulldown", sets: "3 \u00d7 12", note: "Pull to chest, NOT behind neck" },
+          { name: "Shoulder Press Machine", sets: "3 \u00d7 10", note: "Go lighter than you think" },
+          { name: "Seated Row Machine", sets: "3 \u00d7 12", note: "Squeeze shoulder blades together" },
+          { name: "Bicep Curl Machine", sets: "2 \u00d7 12", note: "Light weight, full range" },
+          { name: "Tricep Press Machine", sets: "2 \u00d7 12", note: "Push down slowly" }
+        ]},
+        { label: "Core Circuit \u00b7 On a Mat", emoji: "\uD83C\uDFAF", type: "check", items: [
+          { text: "Dead Bugs", detail: "10 each side \u00b7 on your back" },
+          { text: "Bird Dogs", detail: "10 each side \u00b7 hands & knees" },
+          { text: "Modified Plank", detail: "20 sec \u00d7 3 \u00b7 knees totally fine!" }
+        ]},
+        { label: "Cooldown Walk", emoji: "\uD83D\uDEB6\u200D\u2640\uFE0F", type: "check", large: true, items: [
+          { text: "Treadmill walk \u00b7 2.5 mph flat", detail: "10 min \u2014 same blood sugar magic" }
+        ]}
+      ],
+      tip: "Shoulders tire fast \u2014 seriously start lighter than you think. You can always go up next week."
+    },
+    {
+      label: "DAY 3", icon: "\uD83E\uDDD8\uD83C\uDFFE\u200D\u2640\uFE0F", title: "Full Body + Stretch",
+      why: "Ties everything together. We finish with real stretching because PCOS often comes with chronic tension and inflammation. Your self-care gym day.",
+      sections: [
+        { label: "Warm-Up \u00b7 5 min", emoji: "\uD83D\uDD25", type: "check", items: [
+          { text: "Treadmill walk \u00b7 3.0 mph, 2% incline", detail: "5 min" },
+          { text: "Bodyweight squats", detail: "10 reps \u00b7 you know these" },
+          { text: "Arm circles each direction", detail: "10 each \u00b7 big and slow" }
+        ]},
+        { label: "Workout", emoji: "\uD83D\uDC96", type: "exercise", items: [
+          { name: "Leg Press Machine", sets: "2 \u00d7 12", note: "Lighter than Day 1 \u2014 maintenance" },
+          { name: "Chest Press Machine", sets: "2 \u00d7 12", note: "Same or lighter than Day 2" },
+          { name: "Lat Pulldown", sets: "2 \u00d7 12", note: "Smooth reps, no jerking" },
+          { name: "Seated Leg Curl", sets: "2 \u00d7 12", note: "Squeeze & hold 1 sec at bottom" },
+          { name: "Shoulder Press Machine", sets: "2 \u00d7 10", note: "Easy does it" },
+          { name: "Hip Abductor", sets: "2 \u00d7 15", note: "Finish strong for those hips" }
+        ]},
+        { label: "Stretch & Cool Down \u00b7 15 min", emoji: "\uD83E\uDDD8\u200D\u2640\uFE0F", type: "check", items: [
+          { text: "Seated forward fold", detail: "30 sec \u00b7 reach for toes" },
+          { text: "Figure-4 stretch each side", detail: "30 sec \u00b7 ankle over opposite knee" },
+          { text: "Cat-cow stretches", detail: "10 reps \u00b7 arch and round" },
+          { text: "Child\u2019s pose", detail: "1 min \u00b7 knees wide, breathe deep" },
+          { text: "Neck rolls each direction", detail: "5 each \u00b7 slow & gentle" },
+          { text: "Treadmill walk \u00b7 2.0 mph flat", detail: "5 min \u00b7 just winding down" }
+        ]}
+      ],
+      tip: "Day 3 is your gentlest day. If you only have energy for one gym visit this week, do Day 1. But if you\u2019re here \u2014 you\u2019re doing amazing."
+    }
+  ];
+
+  var activeDay = 0;
+  var checked = {};
+  var storage = (function() {
+    try {
+      var testKey = "__glowup_storage_test__";
+      window.localStorage.setItem(testKey, "1");
+      window.localStorage.removeItem(testKey);
+      return window.localStorage;
+    } catch(e) {
+      var memoryStore = {};
+      return {
+        getItem: function(key) {
+          return Object.prototype.hasOwnProperty.call(memoryStore, key) ? memoryStore[key] : null;
+        },
+        setItem: function(key, value) {
+          memoryStore[key] = String(value);
+        },
+        removeItem: function(key) {
+          delete memoryStore[key];
+        }
+      };
+    }
+  })();
+
+  try {
+    var saved = storage.getItem("glowup_workout");
+    if (saved) { checked = JSON.parse(saved); }
+  } catch(e) { /* private browsing or storage full */ }
+
+  function saveState() {
+    try { storage.setItem("glowup_workout", JSON.stringify(checked)); } catch(e) {}
+  }
+
+  function getTotalItems(dayIdx) {
+    var t = 0;
+    for (var s = 0; s < DAYS[dayIdx].sections.length; s++) {
+      t += DAYS[dayIdx].sections[s].items.length;
+    }
+    return t;
+  }
+
+  function getCompletedItems(dayIdx) {
+    var c = 0;
+    var keys = Object.keys(checked);
+    for (var k = 0; k < keys.length; k++) {
+      if (keys[k].indexOf("d" + dayIdx + "-") === 0 && checked[keys[k]]) { c++; }
+    }
+    return c;
+  }
+
+  function switchDay(idx) {
+    activeDay = idx;
+    render();
+  }
+
+  function toggleCheck(id) {
+    checked[id] = !checked[id];
+    saveState();
+    render();
+    
+    var total = getTotalItems(activeDay);
+    var done = getCompletedItems(activeDay);
+    if (done >= total) {
+      var cel = document.getElementById("celebrate");
+      cel.classList.remove("show");
+      /* force reflow */
+      cel.offsetWidth;
+      cel.classList.add("show");
+      setTimeout(function() { cel.classList.remove("show"); }, 3000);
+    }
+  }
+
+  /* expose to onclick handlers */
+  window.switchDay = switchDay;
+  window.toggleCheck = toggleCheck;
+
+  function renderTabs() {
+    var container = document.getElementById("tabs");
+    var html = "";
+    for (var i = 0; i < DAYS.length; i++) {
+      var d = DAYS[i];
+      var done = getCompletedItems(i);
+      var total = getTotalItems(i);
+      var isActive = i === activeDay;
+      html += '<div class="tab ' + (isActive ? "active" : "") + '" onclick="switchDay(' + i + ')">';
+      html += '<span class="emoji">' + d.icon + '</span>';
+      html += '<span class="label">' + d.label + '</span>';
+      if (done > 0) { html += '<span class="count">' + done + '/' + total + '</span>'; }
+      html += '</div>';
+    }
+    container.innerHTML = html;
+  }
+
+  function renderProgress() {
+    var total = getTotalItems(activeDay);
+    var done = getCompletedItems(activeDay);
+    var pct = total > 0 ? Math.round((done / total) * 100) : 0;
+    document.getElementById("progressFill").style.width = pct + "%";
+    document.getElementById("progressCount").textContent = done + "/" + total + " done";
+    document.getElementById("progressPct").textContent = pct + "%";
+  }
+
+  function renderDay() {
+    var day = DAYS[activeDay];
+    var html = '<div class="day-header"><h2>' + day.title + '</h2><p>' + day.why + '</p></div>';
+
+    for (var si = 0; si < day.sections.length; si++) {
+      var sec = day.sections[si];
+      html += '<div class="section-label"><span class="emoji">' + sec.emoji + '</span><span class="text">' + sec.label + '</span><span class="line"></span></div>';
+      
+      for (var ii = 0; ii < sec.items.length; ii++) {
+        var item = sec.items[ii];
+        var id = "d" + activeDay + "-s" + si + "-" + ii;
+        var isDone = checked[id];
+
+        if (sec.type === "exercise") {
+          html += '<button type="button" class="ex-card ' + (isDone ? "done" : "") + '" onclick="toggleCheck(\'' + id + '\')">';
+          html += '<span class="ex-checkbox">' + (isDone ? "\u2713" : "") + '</span>';
+          html += '<span class="ex-info">';
+          html += '<span class="ex-top"><span class="ex-name">' + item.name + '</span><span class="ex-sets">' + item.sets + '</span></span>';
+          html += '<span class="ex-note">' + item.note + '</span>';
+          html += '</span></button>';
+        } else {
+          html += '<button type="button" class="check-item ' + (isDone ? "done" : "") + " " + (sec.large ? "large" : "") + '" onclick="toggleCheck(\'' + id + '\')">';
+          html += '<span class="checkbox">' + (isDone ? "\u2713" : "") + '</span>';
+          html += '<span><span class="check-text">' + item.text + '</span>';
+          if (item.detail) { html += '<span class="check-detail">' + item.detail + '</span>'; }
+          html += '</span></button>';
+        }
+      }
+    }
+
+    html += '<div class="tip-box">\uD83D\uDCA1 ' + day.tip + '</div>';
+    document.getElementById("dayContent").innerHTML = html;
+  }
+
+  function render() {
+    renderTabs();
+    renderProgress();
+    renderDay();
+  }
+
+  document.getElementById("sugarToggle").addEventListener("click", function() {
+    var content = document.getElementById("sugarContent");
+    var arrow = document.getElementById("sugarArrow");
+    if (content.className.indexOf("is-hidden") !== -1) {
+      content.className = content.className.replace("is-hidden", "").trim();
+      arrow.className = arrow.className + " open";
+    } else {
+      content.className = content.className + " is-hidden";
+      arrow.className = arrow.className.replace("open", "").trim();
+    }
+  });
+
+  document.getElementById("adhdToggle").addEventListener("click", function() {
+    var content = document.getElementById("adhdContent");
+    var btn = document.getElementById("adhdToggle");
+    if (content.className.indexOf("is-hidden") !== -1) {
+      content.className = content.className.replace("is-hidden", "").trim();
+      btn.textContent = "hide ADHD Gym Survival Guide";
+    } else {
+      content.className = content.className + " is-hidden";
+      btn.textContent = "\u2661 ADHD Gym Survival Guide \u2661";
+    }
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>

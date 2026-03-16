@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Glow Up Eats">
+<title>Glow Up Eats</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+  
+  body {
+    font-family: -apple-system, 'Segoe UI', system-ui, sans-serif;
+    background: linear-gradient(180deg, #FFF0F5 0%, #FDE8F0 30%, #FBD0E0 100%);
+    min-height: 100vh;
+    min-height: 100dvh;
+    color: #4A1942;
+    -webkit-font-smoothing: antialiased;
+    padding-bottom: env(safe-area-inset-bottom, 20px);
+  }
+
+  .header { text-align: center; padding: 28px 20px 14px; }
+  .header .heart { font-size: 28px; margin-bottom: 2px; }
+  .header h1 { font-size: 28px; font-weight: 900; color: #E91E8C; letter-spacing: 3px; margin: 0; }
+  .header .sub { font-size: 11px; letter-spacing: 3px; color: #F06CAB; font-weight: 700; text-transform: uppercase; margin-top: 2px; }
+
+  /* TABS - horizontal scroll */
+  .tabs-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 4px 0 14px; }
+  .tabs-wrap::-webkit-scrollbar { display: none; }
+  .tabs {
+    display: -webkit-flex; display: flex; gap: 8px; padding: 0 16px;
+    min-width: -webkit-min-content; min-width: min-content;
+  }
+  .tab {
+    -webkit-flex-shrink: 0; flex-shrink: 0; padding: 10px 14px 8px; border-radius: 16px;
+    border: 2px solid rgba(248,164,200,0.4); background: rgba(255,255,255,0.6);
+    text-align: center; cursor: pointer; -webkit-transition: all 0.25s ease; transition: all 0.25s ease;
+    min-width: 72px;
+  }
+  .tab.active { background: linear-gradient(135deg, #E91E8C, #F06CAB); border-color: transparent; }
+  .tab .emoji { font-size: 20px; display: block; }
+  .tab .label { display: block; font-size: 10px; font-weight: 800; color: #E91E8C; letter-spacing: 0.5px; margin-top: 3px; }
+  .tab.active .label { color: white; }
+
+  /* SECTION CONTENT */
+  .section-content { padding: 0 16px 16px; }
+  .section-header { text-align: center; padding: 10px 0 8px; }
+  .section-header h2 { font-size: 19px; font-weight: 900; color: #4A1942; margin: 0 0 4px; }
+  .section-header p { font-size: 12px; color: #B88BA8; font-style: italic; line-height: 1.45; padding: 0 8px; }
+
+  .divider-label {
+    display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center;
+    gap: 8px; padding: 16px 4px 8px;
+  }
+  .divider-label .emoji { font-size: 16px; }
+  .divider-label .text { font-size: 12px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: #E91E8C; white-space: nowrap; }
+  .divider-label .line { -webkit-flex: 1; flex: 1; height: 1px; background: linear-gradient(90deg, #F8A4C8, transparent); }
+
+  /* CARDS */
+  .card {
+    background: rgba(255,255,255,0.65); border-radius: 14px; padding: 12px 16px;
+    margin-bottom: 8px; line-height: 1.45;
+  }
+  .card-title { font-size: 15px; font-weight: 700; color: #4A1942; margin-bottom: 4px; }
+  .card-body { font-size: 13px; color: #5A3052; font-weight: 500; }
+  .card-body em { color: #B88BA8; font-weight: 500; }
+  .card-accent { font-size: 12px; color: #E91E8C; font-weight: 700; margin-top: 6px; font-style: italic; }
+
+  /* SWAP ROWS */
+  .swap-row {
+    display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center;
+    background: rgba(255,255,255,0.6); border-radius: 14px; padding: 10px 14px;
+    margin-bottom: 6px; gap: 10px;
+  }
+  .swap-icon { font-size: 20px; -webkit-flex-shrink: 0; flex-shrink: 0; width: 28px; text-align: center; }
+  .swap-info { -webkit-flex: 1; flex: 1; }
+  .swap-from { font-size: 13px; font-weight: 600; color: #4A1942; }
+  .swap-arrow { color: #E91E8C; font-weight: 800; font-size: 13px; margin: 0 2px; }
+  .swap-to { font-size: 13px; font-weight: 700; color: #E91E8C; }
+  .swap-note { display: block; font-size: 11px; color: #B88BA8; margin-top: 2px; font-style: italic; }
+
+  /* CHAIN CARD (fast food) */
+  .chain-card {
+    background: rgba(255,255,255,0.7); border-radius: 16px; margin-bottom: 10px; overflow: hidden;
+  }
+  .chain-header {
+    display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center;
+    -webkit-justify-content: space-between; justify-content: space-between;
+    padding: 12px 16px; cursor: pointer; border: none; width: 100%;
+    background: transparent; font-family: inherit; text-align: left;
+    -webkit-appearance: none; appearance: none;
+  }
+  .chain-name { font-size: 15px; font-weight: 800; color: #4A1942; }
+  .chain-arrow { font-size: 16px; color: #F8A4C8; -webkit-transition: transform 0.2s; transition: transform 0.2s; }
+  .chain-arrow.open { -webkit-transform: rotate(180deg); transform: rotate(180deg); }
+  .chain-body { padding: 0 16px 12px; }
+  .chain-body.is-hidden { display: none; }
+  .order-item { font-size: 13px; font-weight: 600; color: #4A1942; padding: 4px 0; line-height: 1.4; }
+  .order-item .protein { color: #E91E8C; font-weight: 700; }
+  .order-note { font-size: 12px; color: #B88BA8; font-style: italic; padding: 2px 0 6px; line-height: 1.3; }
+
+  /* RULE CARD */
+  .rule-card {
+    display: -webkit-flex; display: flex; gap: 12px; background: rgba(255,255,255,0.65);
+    border-radius: 14px; padding: 14px 16px; margin-bottom: 8px;
+    -webkit-align-items: flex-start; align-items: flex-start;
+  }
+  .rule-num {
+    -webkit-flex-shrink: 0; flex-shrink: 0; width: 30px; height: 30px; border-radius: 50%;
+    background: linear-gradient(135deg, #E91E8C, #F06CAB); color: white;
+    font-size: 14px; font-weight: 900; display: -webkit-flex; display: flex;
+    -webkit-align-items: center; align-items: center; -webkit-justify-content: center; justify-content: center;
+  }
+  .rule-text { font-size: 14px; font-weight: 600; color: #4A1942; line-height: 1.4; }
+  .rule-text em { color: #B88BA8; font-weight: 500; font-style: italic; }
+
+  /* TIP BOX */
+  .tip-box {
+    margin: 12px 0; padding: 14px 16px;
+    background: linear-gradient(135deg, rgba(233,30,140,0.08), rgba(248,164,200,0.12));
+    border-left: 4px solid #E91E8C; border-radius: 0 14px 14px 0;
+    font-size: 13px; line-height: 1.5; font-style: italic;
+  }
+
+  /* WARN BOX */
+  .warn-box {
+    margin: 10px 0; padding: 12px 16px;
+    background: linear-gradient(135deg, rgba(255,180,50,0.1), rgba(255,220,100,0.08));
+    border-left: 4px solid #FFB432; border-radius: 0 14px 14px 0;
+    font-size: 12px; line-height: 1.5; font-weight: 600; color: #8B6B00;
+  }
+
+  .footer { text-align: center; padding: 20px 20px 40px; }
+  .footer .divider { width: 40px; height: 1px; background: #F8A4C8; margin: 0 auto 16px; }
+  .footer p { font-size: 14px; font-style: italic; color: #E91E8C; font-weight: 600; line-height: 1.6; }
+
+  .is-hidden { display: none; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="heart">&#9825;</div>
+  <h1>GLOW UP</h1>
+  <div class="sub">Eats &middot; PCOS Edition</div>
+</div>
+
+<div class="tabs-wrap">
+  <div class="tabs" id="tabs"></div>
+</div>
+
+<div class="section-content" id="sectionContent"></div>
+
+<div class="footer">
+  <div class="divider"></div>
+  <p>Better, not perfect.<br>Every swap counts. &#128081;</p>
+</div>
+
+<script>
+(function() {
+  "use strict";
+
+  var SECTIONS = [
+    {
+      label: "RULES", icon: "\u2661", title: "The 5 Rules",
+      subtitle: "That\u2019s it. Just these. No calorie counting, no food journals, no guilt.",
+      render: function() {
+        var rules = [
+          { text: "Switch to zero-sugar drinks.", em: "This one change alone is massive for blood sugar." },
+          { text: "Eat protein before carbs.", em: "Same meal, different order = 40% less glucose spike. Science." },
+          { text: "Always pair protein with carbs.", em: "Never eat carbs naked. Cheese with crackers, chicken with fries, peanut butter with toast." },
+          { text: "10 min walk after big meals.", em: "Just a slow walk. Drops blood sugar significantly." },
+          { text: "Better, not perfect.", em: "Grilled chicken nuggets instead of fried is a win. You don\u2019t need a salad." }
+        ];
+        var html = "";
+        for (var i = 0; i < rules.length; i++) {
+          html += '<div class="rule-card">';
+          html += '<span class="rule-num">' + (i + 1) + '</span>';
+          html += '<span class="rule-text">' + rules[i].text + '<br><em>' + rules[i].em + '</em></span>';
+          html += '</div>';
+        }
+        html += '<div class="tip-box">\uD83D\uDCA1 These rules stack. Doing even 2 of them consistently will move the needle on blood sugar and how you feel day to day.</div>';
+        return html;
+      }
+    },
+    {
+      label: "DRINKS", icon: "\uD83E\uDD64", title: "Drink Swaps",
+      subtitle: "Cutting sugary drinks is the single highest-impact change for diabetes + PCOS. Here\u2019s how to do it without hating your life.",
+      render: function() {
+        var swaps = [
+          { icon: "\uD83E\uDD64", from: "Regular Coke / Pepsi", to: "Coke Zero, Diet Coke, Pepsi Zero", note: "Literally tastes 95% the same. Give it 2 weeks." },
+          { icon: "\uD83E\uDD64", from: "Mountain Dew", to: "Mtn Dew Zero Sugar", note: "Green bottle, zero sugar. Same energy." },
+          { icon: "\uD83E\uDD64", from: "Sprite / 7UP", to: "Sprite Zero, Starry Zero Sugar", note: "Clear soda swaps are the easiest ones." },
+          { icon: "\uD83E\uDD64", from: "Sweet tea", to: "Splenda sweet tea, or half-sweet", note: "Ask for half-sweet at drive-throughs. Most will do it." },
+          { icon: "\uD83E\uDD64", from: "Lemonade", to: "Crystal Light, Mio lemonade drops", note: "The squeeze bottles you add to water. Actually good." },
+          { icon: "\uD83E\uDD64", from: "Juice (OJ, apple, grape)", to: "Flavored sparkling water", note: "LaCroix, Bubly, AHA. Juice is basically flat soda in terms of sugar." },
+          { icon: "\uD83E\uDD64", from: "Gatorade / Powerade", to: "Gatorade Zero, Powerade Zero, LMNT", note: "Same electrolytes, zero sugar." },
+          { icon: "\u2615", from: "Starbucks Frappuccino", to: "Iced coffee + sugar-free syrup + cream", note: "Ask for sugar-free vanilla. Still sweet, fraction of the sugar." },
+          { icon: "\uD83E\uDDCB", from: "Boba / milk tea", to: "Ask for 0% sugar + sub crystal jelly for boba pearls", note: "Boba pearls are pure starch. Crystal jelly is lower sugar." }
+        ];
+        var html = "";
+        for (var i = 0; i < swaps.length; i++) {
+          var s = swaps[i];
+          html += '<div class="swap-row">';
+          html += '<span class="swap-icon">' + s.icon + '</span>';
+          html += '<span class="swap-info">';
+          html += '<span class="swap-from">' + s.from + '</span>';
+          html += ' <span class="swap-arrow">\u2192</span> ';
+          html += '<span class="swap-to">' + s.to + '</span>';
+          if (s.note) { html += '<span class="swap-note">' + s.note + '</span>'; }
+          html += '</span></div>';
+        }
+        html += '<div class="tip-box">\uD83D\uDCA1 If you drink 2 regular sodas a day and switch to zero-sugar, that\u2019s roughly 70g of sugar eliminated daily. That\u2019s the equivalent of 17 sugar packets your insulin doesn\u2019t have to fight anymore.</div>';
+        return html;
+      }
+    },
+    {
+      label: "FAST FOOD", icon: "\uD83C\uDF54", title: "Fast Food Orders",
+      subtitle: "You don\u2019t have to stop eating fast food. You just order smarter. Here\u2019s your default order at every chain.",
+      render: function() {
+        var chains = [
+          {
+            name: "\uD83C\uDF54 McDonald\u2019s", items: [
+              { order: "McDouble (no bun) or Grilled Chicken Sandwich", protein: "25g protein" },
+              { order: "Side salad instead of fries (or small fries, eaten LAST)", protein: "" },
+              { order: "Diet Coke or unsweetened iced tea", protein: "" }
+            ], note: "Eat the meat and cheese first, bun/fries last. Same food, better blood sugar."
+          },
+          {
+            name: "\uD83D\uDC14 Chick-fil-A", items: [
+              { order: "Grilled Nuggets (12-count)", protein: "38g protein" },
+              { order: "Side of fruit cup or Kale Crunch", protein: "" },
+              { order: "Unsweetened iced tea or Diet Lemonade", protein: "" }
+            ], note: "Grilled nuggets are the PCOS cheat code here. More protein than the sandwich."
+          },
+          {
+            name: "\uD83C\uDF2E Taco Bell", items: [
+              { order: "Power Menu Bowl (sub chicken, extra protein)", protein: "26g protein" },
+              { order: "OR 2 Chicken Soft Tacos (fresco style)", protein: "~20g protein" },
+              { order: "Water or Baja Blast Zero", protein: "" }
+            ], note: "Power Menu Bowl is basically a burrito bowl. Ask for no sour cream, extra chicken."
+          },
+          {
+            name: "\uD83C\uDF54 Wendy\u2019s", items: [
+              { order: "Jr. Cheeseburger (eat patty first) or Grilled Chicken Wrap", protein: "20\u201325g protein" },
+              { order: "Side of chili instead of fries", protein: "+15g extra protein" },
+              { order: "Diet Coke or unsweetened tea", protein: "" }
+            ], note: "Wendy\u2019s chili is secretly one of the best fast food options for PCOS. High protein, low sugar."
+          },
+          {
+            name: "\uD83E\uDD51 Chipotle", items: [
+              { order: "Burrito bowl: chicken or steak, black beans, fajita veggies, salsa, lettuce", protein: "40\u201350g protein" },
+              { order: "Skip the rice or ask for half", protein: "" },
+              { order: "Guac is good fat \u2014 get it", protein: "" }
+            ], note: "This is probably the single best fast food meal for PCOS. Eat the protein and beans first."
+          },
+          {
+            name: "\uD83E\uDD6A Subway", items: [
+              { order: "Rotisserie Chicken or Turkey Breast on wheat", protein: "25\u201330g protein" },
+              { order: "Load up ALL the veggies", protein: "" },
+              { order: "Mustard or oil & vinegar (skip creamy sauces)", protein: "" }
+            ], note: "Eat the meat and veggies off the top first, then eat the bread. Sounds weird, works great."
+          }
+        ];
+        var html = "";
+        for (var c = 0; c < chains.length; c++) {
+          var chain = chains[c];
+          html += '<div class="chain-card">';
+          html += '<button type="button" class="chain-header" onclick="toggleChain(' + c + ')">';
+          html += '<span class="chain-name">' + chain.name + '</span>';
+          html += '<span class="chain-arrow" id="chainArrow' + c + '">\u2304</span>';
+          html += '</button>';
+          html += '<div class="chain-body' + (c > 0 ? ' is-hidden' : '') + '" id="chainBody' + c + '">';
+          for (var j = 0; j < chain.items.length; j++) {
+            var item = chain.items[j];
+            html += '<div class="order-item">' + item.order;
+            if (item.protein) { html += ' \u2014 <span class="protein">' + item.protein + '</span>'; }
+            html += '</div>';
+          }
+          html += '<div class="order-note">' + chain.note + '</div>';
+          html += '</div></div>';
+        }
+        html += '<div class="tip-box">\uD83D\uDCA1 The \u201ceat protein first\u201d trick works at every single one of these. Same exact meal, just change the order you eat it. Protein and fat slow down the glucose hit from carbs.</div>';
+        return html;
+      }
+    },
+    {
+      label: "GRAB & GO", icon: "\uD83D\uDED2", title: "Grab & Go Grocery",
+      subtitle: "Zero cooking. Zero prep. Just buy it and eat it. All Walmart-available.",
+      render: function() {
+        var html = "";
+
+        html += '<div class="divider-label"><span class="emoji">\uD83E\uDD64</span><span class="text">Protein Shakes</span><span class="line"></span></div>';
+        html += '<div class="card"><div class="card-body">';
+        html += '<strong>Premier Protein shakes</strong> (30g protein, 1g sugar) \u2014 chocolate, vanilla, caramel, cookies & cream. Keep a case in the fridge. Drink one before you leave the house or with breakfast.<br><br>';
+        html += '<strong>Fairlife Core Power</strong> (26\u201342g protein) \u2014 thicker, more milkshakey. Chocolate one is elite.<br><br>';
+        html += '<strong>Atkins shakes</strong> \u2014 cheaper option, still decent. 15g protein, 1g sugar.';
+        html += '</div><div class="card-accent">These are your emergency protein. Always have at least 2 in the fridge.</div></div>';
+
+        html += '<div class="divider-label"><span class="emoji">\uD83D\uDC14</span><span class="text">No-Cook Protein</span><span class="line"></span></div>';
+        html += '<div class="card"><div class="card-body">';
+        html += '\u2022 Rotisserie chicken (just buy it, tear it apart, eat it all week)<br>';
+        html += '\u2022 Deli meat &amp; cheese roll-ups \u2014 turkey or ham + cheese, roll up, eat<br>';
+        html += '\u2022 String cheese or Babybel rounds \u2014 stash everywhere<br>';
+        html += '\u2022 Hard-boiled eggs (pre-made packs in the deli section)<br>';
+        html += '\u2022 Peanut butter or almond butter \u2014 eat it with anything<br>';
+        html += '\u2022 Greek yogurt (Oikos Triple Zero or Two Good) \u2014 high protein, low sugar<br>';
+        html += '\u2022 Cottage cheese + fruit \u2014 sounds weird, actually slaps';
+        html += '</div></div>';
+
+        html += '<div class="divider-label"><span class="emoji">\uD83E\uDD57</span><span class="text">Ready-Made Meals</span><span class="line"></span></div>';
+        html += '<div class="card"><div class="card-body">';
+        html += '\u2022 Pre-made salad kits (just add rotisserie chicken)<br>';
+        html += '\u2022 Deli section: pre-made chicken salad, wraps, grain bowls<br>';
+        html += '\u2022 Lunchables Uploaded or P3 Protein Packs \u2014 zero shame, decent macros<br>';
+        html += '\u2022 Pre-cut veggie trays + hummus or ranch';
+        html += '</div></div>';
+
+        html += '<div class="divider-label"><span class="emoji">\uD83C\uDF6A</span><span class="text">Fridge Emergency Stash</span><span class="line"></span></div>';
+        html += '<div class="card"><div class="card-body">';
+        html += 'Always have grab-able protein in the fridge so you eat THAT before reaching for candy or chips. The goal isn\u2019t to never eat candy \u2014 it\u2019s to eat protein FIRST so the sugar hits different.<br><br>';
+        html += '<strong>Stock these:</strong> Premier Protein shakes, string cheese, deli meat, hard-boiled eggs, Greek yogurt cups';
+        html += '</div><div class="card-accent">If it\u2019s in the fridge and takes 0 effort, you\u2019ll eat it. That\u2019s the whole strategy.</div></div>';
+
+        html += '<div class="tip-box">\uD83D\uDCA1 You don\u2019t need to meal prep. You need a stocked fridge with things you can grab in 10 seconds. That\u2019s it.</div>';
+        return html;
+      }
+    },
+    {
+      label: "FROZEN", icon: "\uD83E\uDDCA", title: "Frozen Meals",
+      subtitle: "Microwave only. No cooking. These are actually solid for PCOS.",
+      render: function() {
+        var html = "";
+
+        html += '<div class="divider-label"><span class="emoji">\u2B50</span><span class="text">Best Options</span><span class="line"></span></div>';
+        var meals = [
+          { name: "Lean Cuisine Balance Bowls", note: "ADA-certified (American Diabetes Association). Specifically designed for blood sugar management. The Chicken & Vegetables and Southwest Chicken are both good." },
+          { name: "Healthy Choice Power Bowls", note: "High protein, decent portions. Adobo Chicken, Korean Beef, Basil Pesto Chicken are top picks." },
+          { name: "Saffron Road Chicken Tikka Masala", note: "Tastes like real food. 22g protein. Walmart carries it." },
+          { name: "Devour White Cheddar Mac & Cheese with Bacon", note: "Not health food, but 18g protein. Way better than regular frozen mac." }
+        ];
+        for (var i = 0; i < meals.length; i++) {
+          html += '<div class="card"><div class="card-title">' + meals[i].name + '</div><div class="card-body"><em>' + meals[i].note + '</em></div></div>';
+        }
+
+        html += '<div class="divider-label"><span class="emoji">\uD83E\uDDC7</span><span class="text">Frozen Breakfast</span><span class="line"></span></div>';
+        var breakfasts = [
+          { name: "Kodiak Protein Waffles", note: "12g protein per serving. Top with peanut butter instead of syrup." },
+          { name: "Jimmy Dean Delights Turkey Sausage Egg\u2019wiches", note: "Grab and microwave. 14g protein, reasonable carbs." },
+          { name: "Good Food Made Simple Breakfast Burritos", note: "Egg white + turkey sausage version. Solid macros." }
+        ];
+        for (var i = 0; i < breakfasts.length; i++) {
+          html += '<div class="card"><div class="card-title">' + breakfasts[i].name + '</div><div class="card-body"><em>' + breakfasts[i].note + '</em></div></div>';
+        }
+
+        html += '<div class="divider-label"><span class="emoji">\uD83C\uDF55</span><span class="text">Frozen Comfort Food</span><span class="line"></span></div>';
+        var comfort = [
+          { name: "Cauliflower crust pizza (any brand)", note: "Real Good Foods or Caulipower. Not zero carb, but way less than regular pizza." },
+          { name: "Tyson frozen grilled chicken strips", note: "Rip open bag, microwave, eat. 21g protein per serving. Put them on anything." },
+          { name: "Birds Eye Protein Blends (frozen bags)", note: "Veggies + grains + protein, microwave in the bag. 14\u201318g protein." }
+        ];
+        for (var i = 0; i < comfort.length; i++) {
+          html += '<div class="card"><div class="card-title">' + comfort[i].name + '</div><div class="card-body"><em>' + comfort[i].note + '</em></div></div>';
+        }
+
+        html += '<div class="tip-box">\uD83D\uDCA1 Frozen meals get a bad reputation but the newer high-protein ones are genuinely decent. The key is checking that protein is 15g+ and sugar is under 10g.</div>';
+        return html;
+      }
+    },
+    {
+      label: "SNACKS", icon: "\uD83C\uDF6C", title: "Snack & Candy Swaps",
+      subtitle: "You don\u2019t have to give up sweets. You switch to versions that don\u2019t spike your blood sugar.",
+      render: function() {
+        var html = "";
+
+        html += '<div class="divider-label"><span class="emoji">\uD83C\uDF6B</span><span class="text">Candy Swaps</span><span class="line"></span></div>';
+        var candy = [
+          { icon: "\uD83C\uDF6B", from: "Hershey\u2019s bars", to: "Hershey\u2019s Zero Sugar bars", note: "Same taste, sugar-free. Walmart candy aisle." },
+          { icon: "\uD83C\uDF6C", from: "Sour Patch Kids / gummy bears", to: "SmartSweets (any flavor)", note: "3g sugar per bag instead of 30g. Actually good." },
+          { icon: "\uD83C\uDF6B", from: "Reese\u2019s", to: "Lily\u2019s Peanut Butter Cups", note: "Sweetened with stevia. Closest Reese\u2019s dupe out there." },
+          { icon: "\uD83C\uDF66", from: "Regular ice cream", to: "Rebel Ice Cream or Halo Top", note: "Rebel is keto, 0\u20138g sugar per PINT. Halo Top is lighter, 6\u20138g per serving." },
+          { icon: "\uD83C\uDF6A", from: "Oreos / cookies", to: "Quest Cookies or Built Bars", note: "15\u201317g protein per cookie/bar. Actually taste like dessert." },
+          { icon: "\uD83C\uDF6D", from: "Skittles / Starburst", to: "Dr. John\u2019s candies or Zollipops", note: "Sugar-free hard candies. Good for the sweet tooth craving." }
+        ];
+        for (var i = 0; i < candy.length; i++) {
+          var s = candy[i];
+          html += '<div class="swap-row">';
+          html += '<span class="swap-icon">' + s.icon + '</span>';
+          html += '<span class="swap-info">';
+          html += '<span class="swap-from">' + s.from + '</span>';
+          html += ' <span class="swap-arrow">\u2192</span> ';
+          html += '<span class="swap-to">' + s.to + '</span>';
+          if (s.note) { html += '<span class="swap-note">' + s.note + '</span>'; }
+          html += '</span></div>';
+        }
+
+        html += '<div class="warn-box">\u26A0\uFE0F Sugar alcohols (in most sugar-free candy) can cause stomach issues if you eat too much at once. Start with small amounts. If your stomach gets gurgly, you ate too much \u2014 now you know your limit.</div>';
+
+        html += '<div class="divider-label"><span class="emoji">\uD83E\uDD5C</span><span class="text">Savory Snacks</span><span class="line"></span></div>';
+        var savory = [
+          { icon: "\uD83E\uDD5C", from: "Regular chips", to: "Quest Protein Chips or Whisps cheese crisps", note: "Crunchy + protein. Ranch and BBQ flavors." },
+          { icon: "\uD83C\uDF7F", from: "Movie theater popcorn", to: "SkinnyPop or Smartfood", note: "Lower calorie, still satisfying. Pair with string cheese." },
+          { icon: "\uD83E\uDD68", from: "Pretzels", to: "Pretzels + peanut butter or cheese", note: "Don\u2019t eat carbs naked! Always pair with protein." }
+        ];
+        for (var i = 0; i < savory.length; i++) {
+          var s = savory[i];
+          html += '<div class="swap-row">';
+          html += '<span class="swap-icon">' + s.icon + '</span>';
+          html += '<span class="swap-info">';
+          html += '<span class="swap-from">' + s.from + '</span>';
+          html += ' <span class="swap-arrow">\u2192</span> ';
+          html += '<span class="swap-to">' + s.to + '</span>';
+          if (s.note) { html += '<span class="swap-note">' + s.note + '</span>'; }
+          html += '</span></div>';
+        }
+
+        html += '<div class="tip-box">\uD83D\uDCA1 The goal is never \u201cno sugar.\u201d It\u2019s \u201cless sugar, more protein.\u201d You can still have treats. You\u2019re just picking ones that don\u2019t wreck your blood sugar.</div>';
+        return html;
+      }
+    },
+    {
+      label: "HACK", icon: "\uD83E\uDDE0", title: "The Eating Order Hack",
+      subtitle: "This is the single easiest thing you can do for blood sugar. Same food, different order, dramatically different glucose response.",
+      render: function() {
+        var html = "";
+
+        html += '<div class="card"><div class="card-body">';
+        html += '<strong style="color:#E91E8C;font-size:15px;">The rule: Protein & fat first. Veggies second. Carbs & sugar last.</strong><br><br>';
+        html += 'Research shows eating in this order can reduce glucose spikes by up to 40% \u2014 even with the exact same meal. Your stomach processes food in order. If protein and fat hit first, they slow down the absorption of the carbs that come after.';
+        html += '</div></div>';
+
+        html += '<div class="divider-label"><span class="emoji">\uD83C\uDF54</span><span class="text">Real Examples</span><span class="line"></span></div>';
+
+        var examples = [
+          { meal: "McDouble", how: "Eat the patties and cheese first. Then eat the bun." },
+          { meal: "Chick-fil-A nuggets + fries", how: "Eat ALL the nuggets first. Then the fries." },
+          { meal: "Burrito bowl", how: "Eat the chicken/steak and beans first. Rice last." },
+          { meal: "Pizza", how: "Eat the toppings and cheese off the top first. Then the crust." },
+          { meal: "Breakfast plate", how: "Eggs and sausage first. Toast and pancakes last." },
+          { meal: "Pasta", how: "Eat the meatballs / chicken / protein first. Noodles last." },
+          { meal: "Sandwich", how: "Pull out the meat and cheese, eat that. Then eat the bread." }
+        ];
+        for (var i = 0; i < examples.length; i++) {
+          html += '<div class="card">';
+          html += '<div class="card-title">' + examples[i].meal + '</div>';
+          html += '<div class="card-body">' + examples[i].how + '</div>';
+          html += '</div>';
+        }
+
+        html += '<div class="tip-box">\uD83D\uDCA1 This sounds too simple to work. It works. The research is solid. It doesn\u2019t require willpower, new foods, or giving anything up. Just change the order.</div>';
+
+        html += '<div class="card" style="margin-top:12px;background:linear-gradient(135deg,rgba(233,30,140,0.1),rgba(248,164,200,0.15));">';
+        html += '<div class="card-body" style="text-align:center;font-weight:700;color:#E91E8C;">';
+        html += 'Protein first. Carbs last.<br>That\u2019s the whole hack. \u2661';
+        html += '</div></div>';
+
+        return html;
+      }
+    }
+  ];
+
+  var activeSection = 0;
+
+  function switchSection(idx) {
+    activeSection = idx;
+    renderAll();
+  }
+  window.switchSection = switchSection;
+
+  function toggleChain(idx) {
+    var body = document.getElementById("chainBody" + idx);
+    var arrow = document.getElementById("chainArrow" + idx);
+    if (!body || !arrow) { return; }
+    if (body.className.indexOf("is-hidden") !== -1) {
+      body.className = body.className.replace("is-hidden", "").trim();
+      arrow.className = arrow.className + " open";
+    } else {
+      body.className = body.className + " is-hidden";
+      arrow.className = arrow.className.replace("open", "").trim();
+    }
+  }
+  window.toggleChain = toggleChain;
+
+  function renderTabs() {
+    var container = document.getElementById("tabs");
+    var html = "";
+    for (var i = 0; i < SECTIONS.length; i++) {
+      var s = SECTIONS[i];
+      var isActive = i === activeSection;
+      html += '<div class="tab ' + (isActive ? "active" : "") + '" onclick="switchSection(' + i + ')">';
+      html += '<span class="emoji">' + s.icon + '</span>';
+      html += '<span class="label">' + s.label + '</span>';
+      html += '</div>';
+    }
+    container.innerHTML = html;
+  }
+
+  function renderSection() {
+    var sec = SECTIONS[activeSection];
+    var html = '<div class="section-header"><h2>' + sec.title + '</h2><p>' + sec.subtitle + '</p></div>';
+    html += sec.render();
+    document.getElementById("sectionContent").innerHTML = html;
+  }
+
+  function renderAll() {
+    renderTabs();
+    renderSection();
+  }
+
+  renderAll();
+})();
+</script>
+</body>
+</html>
